@@ -1,68 +1,47 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import Entry, Button, Label
 import random
 import string
-import pyperclip
 
-class PasswordGenerator:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Random Password Generator")
-        self.root.geometry("400x300")  # Set the window size
+def generate_password():
+    length = length_entry.get()
+    
+    if not length.isdigit():
+        messagebox.showerror("Error", "Please enter a valid number for length.")
+        return
+    
+    length = int(length)
+    
+    if length <= 0:
+        messagebox.showerror("Error", "Please enter a positive number for length.")
+        return
+    
+    password = ''.join(random.choices(string.ascii_letters + string.digits + string.punctuation, k=length))
+    
+    if not is_strong_password(password):
+        messagebox.showwarning("Warning", "Generated password may not be strong. Consider increasing length.")
+    
+    password_display.config(state="normal")
+    password_display.delete(1.0, tk.END)
+    password_display.insert(tk.END, password)
+    password_display.config(state="disabled")
 
-        self.label_length = Label(self.root, text="Password Length:", font=("Arial", 12))
-        self.label_length.pack(pady=10)
-        self.entry_length = Entry(self.root, font=("Arial", 12))
-        self.entry_length.pack(pady=5)
+def is_strong_password(password):
+    # You can define your own criteria for a strong password here
+    # For simplicity, we'll just check if the length is at least 8 characters
+    return len(password) >= 8
 
-        self.include_letters = tk.IntVar()
-        self.include_numbers = tk.IntVar()
-        self.include_symbols = tk.IntVar()
+def reset_password():
+    length_entry.delete(0, tk.END)
+    password_display.config(state="normal")
+    password_display.delete(1.0, tk.END)
+    password_display.config(state="disabled")
 
-        self.checkbox_letters = tk.Checkbutton(self.root, text="Include Letters", variable=self.include_letters, font=("Arial", 12))
-        self.checkbox_letters.pack(pady=5)
-        self.checkbox_numbers = tk.Checkbutton(self.root, text="Include Numbers", variable=self.include_numbers, font=("Arial", 12))
-        self.checkbox_numbers.pack(pady=5)
-        self.checkbox_symbols = tk.Checkbutton(self.root, text="Include Symbols", variable=self.include_symbols, font=("Arial", 12))
-        self.checkbox_symbols.pack(pady=5)
+root = tk.Tk()
+root.title("Password Generator")
 
-        self.generate_button = Button(self.root, text="Generate Password", command=self.generate_password, font=("Arial", 12), bg="lightblue")
-        self.generate_button.pack(pady=10)
+# Colorful Background
+background_color = "blue"  
+root.configure(background=background_color)
 
-        self.password_result = Label(self.root, text="", font=("Arial", 12, "bold"))
-        self.password_result.pack(pady=10)
-
-        self.copy_button = Button(self.root, text="Copy to Clipboard", command=self.copy_to_clipboard, font=("Arial", 12), bg="lightgreen")
-        self.copy_button.pack(pady=10)
-
-    def generate_password(self):
-        length = int(self.entry_length.get())
-        include_letters = self.include_letters.get()
-        include_numbers = self.include_numbers.get()
-        include_symbols = self.include_symbols.get()
-
-        if not include_letters and not include_numbers and not include_symbols:
-            messagebox.showerror("Error", "Please select at least one character type.")
-            return
-
-        characters = ''
-        if include_letters:
-            characters += string.ascii_letters
-        if include_numbers:
-            characters += string.digits
-        if include_symbols:
-            characters += string.punctuation
-
-        password = ''.join(random.choice(characters) for _ in range(length))
-        self.password_result.config(text=f"Generated Password: {password}")
-
-    def copy_to_clipboard(self):
-        password = self.password_result.cget("text").split(": ")[1]
-        pyperclip.copy(password)
-        messagebox.showinfo("Success", "Password copied to clipboard.")
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = PasswordGenerator(root)
-    root.mainloop()
+username_label = tk.Label(root, text="Username:", bg=background_color)
